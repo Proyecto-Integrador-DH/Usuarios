@@ -1,6 +1,9 @@
 package com.example.usuarios.Service.Impl;
 
+import com.example.usuarios.Model.DTOs.RolDTO;
+import com.example.usuarios.Model.DTOs.RolDTOUsuario;
 import com.example.usuarios.Model.DTOs.UsuarioDTO;
+import com.example.usuarios.Model.Rol;
 import com.example.usuarios.Model.Usuario;
 import com.example.usuarios.Repository.IUsuarioRepository;
 import com.example.usuarios.Service.IUsuarioService;
@@ -11,6 +14,11 @@ import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,12 +39,39 @@ public class UsuarioService implements IUsuarioService {
     }
 
     @Override
-    public Usuario getUsuario(String email) {
-        return usuarioRepository.findByEmail(email);
+    public UsuarioDTO getUsuario(String email) {
+        Optional<Usuario> optionalUsuario = Optional.ofNullable(usuarioRepository.findByEmail(email));
+        UsuarioDTO usuarioDTO = null;
+        if (optionalUsuario.isPresent()) {
+            Usuario usuario = optionalUsuario.get();
+            usuarioDTO = convertToDto(usuario);
+        }
+        return usuarioDTO;
     }
 
     @Override
-    public Usuario getUsuarioById(Integer id) {
-        return usuarioRepository.findById(id).orElse(null);
+    public UsuarioDTO getUsuarioById(Integer id) {
+        Optional<Usuario> opcionalUsuario = usuarioRepository.findById(id);
+        UsuarioDTO usuarioDTO = null;
+        if (opcionalUsuario.isPresent()) {
+            Usuario usuario = opcionalUsuario.get();
+            usuarioDTO = convertToDto(usuario);
+        }
+        return usuarioDTO;
+    }
+
+    private UsuarioDTO convertToDto(Usuario usuario) {
+        List<RolDTOUsuario> rolesDto = usuario.getRoles().stream()
+                .map(rol -> new RolDTOUsuario(rol.getId(), rol.getNombre()))
+                .collect(Collectors.toList());
+        UsuarioDTO dto = new UsuarioDTO(
+                usuario.getId(),
+                usuario.getNombre(),
+                usuario.getApellido(),
+                usuario.getEmail(),
+                usuario.getPass(),
+                rolesDto
+        );
+        return dto;
     }
 }

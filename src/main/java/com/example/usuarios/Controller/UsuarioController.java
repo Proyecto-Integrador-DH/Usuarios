@@ -1,7 +1,11 @@
 package com.example.usuarios.Controller;
 
+import com.example.usuarios.Model.DTOs.RolDTO;
+import com.example.usuarios.Model.DTOs.RolDTOUsuario;
 import com.example.usuarios.Model.DTOs.UsuarioDTO;
+import com.example.usuarios.Model.Rol;
 import com.example.usuarios.Model.Usuario;
+import com.example.usuarios.Service.IRolService;
 import com.example.usuarios.Service.IUsuarioService;
 import com.example.usuarios.Utils.Autenticacion.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +14,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/usuario")
 public class UsuarioController {
     @Autowired
     private IUsuarioService usuarioService;
+
+    @Autowired
+    private IRolService rolService;
 
     @Autowired
     private AuthenticationService authenticationService;
@@ -26,16 +35,24 @@ public class UsuarioController {
 
         String token = authenticationService.authenticate(email, pass);
 
-        if (token != null) {
-            return ResponseEntity.ok(token);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas.");
+        try {
+            if (token != null) {
+                return ResponseEntity.ok(token);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hubo un error al procesar la solicitud." + e.getMessage());
         }
     }
 
     @PostMapping("/nuevo")
     public ResponseEntity<?> nuevoUsuario(@RequestBody UsuarioDTO usuarioDTO){
+        List<RolDTOUsuario> roles = usuarioDTO.getRoles();
         try {
+            if(roles == null){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El rol es requerido.");
+            }
             usuarioService.postUsuario(usuarioDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body("Usuario creado con éxito.");
         } catch (DataIntegrityViolationException e) {
@@ -46,12 +63,12 @@ public class UsuarioController {
         }
     }
 
-    @GetMapping("/{email}")
+    @GetMapping("email/{email}")
     public ResponseEntity<?> getUsuario(@PathVariable String email){
         try {
-            Usuario usuario = usuarioService.getUsuario(email);
-            if (usuario != null) {
-                return ResponseEntity.ok(usuario);
+            UsuarioDTO usuarioDTO = usuarioService.getUsuario(email);
+            if (usuarioDTO != null) {
+                return ResponseEntity.ok(usuarioDTO);
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró ningún usuario con el email especificado.");
             }
@@ -63,14 +80,14 @@ public class UsuarioController {
     @GetMapping("/id/{id}")
     public ResponseEntity<?> getUsuario(@PathVariable Integer id){
         try {
-            Usuario usuario = usuarioService.getUsuarioById(id);
-            if (usuario != null) {
-                return ResponseEntity.ok(usuario);
+            UsuarioDTO usuarioDTO = usuarioService.getUsuarioById(id);
+            if (usuarioDTO != null) {
+                return ResponseEntity.ok(usuarioDTO);
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró ningún usuario con el id especificado.");
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hubo un error al procesar la solicitud.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hubo un error al procesar la solicitud." + e.getMessage());
         }
     }
 }

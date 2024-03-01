@@ -1,4 +1,6 @@
 package com.example.usuarios.Utils.Autenticacion;
+import com.example.usuarios.Model.DTOs.RolDTOUsuario;
+import com.example.usuarios.Model.DTOs.UsuarioDTO;
 import com.example.usuarios.Model.Rol;
 import com.example.usuarios.Model.Usuario;
 import com.example.usuarios.Service.IUsuarioService;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class AuthenticationService {
@@ -20,16 +23,15 @@ public class AuthenticationService {
     private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
     public String authenticate(String email, String pass) {
-        Usuario usuario = usuarioService.getUsuario(email);
-        System.out.println(usuario.getRoles());
-        if (usuario.getEmail().equals(email) && usuario.getPass().equals(pass)) {
-            return generateToken(usuario.getEmail(), usuario.getRoles());
+        UsuarioDTO usuarioDTO = usuarioService.getUsuario(email);
+        if (usuarioDTO.getEmail().equals(email) && usuarioDTO.getPass().equals(pass)) {
+            return generateToken(usuarioDTO.getEmail(), (List<RolDTOUsuario>)usuarioDTO.getRoles());
         } else {
             return null;
         }
     }
 
-    private String generateToken(String email, List<Rol> roles) {
+    private String generateToken(String email, List<RolDTOUsuario> roles) {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("roles", roles)

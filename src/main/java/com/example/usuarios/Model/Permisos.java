@@ -17,11 +17,24 @@ public class Permisos {
     private Integer id;
     private String permisos;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "rol_permisos",
-            joinColumns = @JoinColumn(name = "permisos_id"),
-            inverseJoinColumns = @JoinColumn(name = "rol_id")
-    )
+    @ManyToMany(mappedBy = "permisos")
     private Set<Rol> roles;
+
+    public <E> List<E> getRoles() {
+        return (List<E>) roles;
+    }
+
+
+    public void addRol(Rol rol) {
+        this.roles.add(rol);
+        rol.getPermisos().add(this);
+    }
+
+    public String getNombre() {
+        return permisos;
+    }
+
+    public Integer getId() {
+        return id;
+    }
 }

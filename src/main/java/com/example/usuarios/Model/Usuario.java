@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.misc.NotNull;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -36,13 +37,13 @@ public class Usuario {
     @Size(min = 8, max = 50)
     private String pass;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "usuario_rol",
             joinColumns = @JoinColumn(name = "usuario_id"),
             inverseJoinColumns = @JoinColumn(name = "rol_id")
     )
-    private List<Rol> roles;
+    private Set<Rol> roles = new HashSet<>();
 
     public String getEmail() {
         return email;
@@ -52,11 +53,23 @@ public class Usuario {
         return pass;
     }
 
-    public List<Rol> getRoles() {
+    public Set<Rol> getRoles() {
         return roles;
     }
 
     public Integer getId() {
         return id;
+    }
+
+    public void addRol(Rol rol) {
+        this.roles.add(rol);
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getApellido() {
+        return apellido;
     }
 }
