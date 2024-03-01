@@ -6,4 +6,6 @@ import com.example.usuarios.Model.Usuario;
 public interface IUsuarioService {
     Usuario postUsuario(UsuarioDTO usuarioDTO);
     Usuario getUsuario(String email);
+
+    Usuario getUsuarioById(Integer id);
 }

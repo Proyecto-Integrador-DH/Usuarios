@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.misc.NotNull;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -41,5 +42,21 @@ public class Usuario {
             joinColumns = @JoinColumn(name = "usuario_id"),
             inverseJoinColumns = @JoinColumn(name = "rol_id")
     )
-    private Set<Rol> roles;
+    private List<Rol> roles;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPass() {
+        return pass;
+    }
+
+    public List<Rol> getRoles() {
+        return roles;
+    }
+
+    public Integer getId() {
+        return id;
+    }
 }
