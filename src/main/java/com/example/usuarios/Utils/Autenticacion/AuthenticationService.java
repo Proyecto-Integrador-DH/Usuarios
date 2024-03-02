@@ -4,6 +4,7 @@ import com.example.usuarios.Model.DTOs.UsuarioDTO;
 import com.example.usuarios.Model.Rol;
 import com.example.usuarios.Model.Usuario;
 import com.example.usuarios.Service.IUsuarioService;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -13,7 +14,9 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthenticationService {
@@ -38,5 +41,14 @@ public class AuthenticationService {
                 .setExpiration(new Date(System.currentTimeMillis() + 864000000)) // 10 días de validez
                 .signWith(key) // Clave secreta para firmar el token
                 .compact();
+    }
+
+    public List<RolDTOUsuario> getRolesFromToken(String token) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+        List<Map<String, Object>> rolesMap = (List<Map<String, Object>>) claims.get("roles");
+        List<RolDTOUsuario> roles = rolesMap.stream()
+                .map(map -> new RolDTOUsuario((Integer) map.get("id"), (String) map.get("nombre")))
+                .collect(Collectors.toList());
+        return roles;
     }
 }

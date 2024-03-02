@@ -93,4 +93,30 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hubo un error al procesar la solicitud." + e.getMessage());
         }
     }
+
+    @GetMapping("/usuarios")
+    public ResponseEntity<?> getTodosUsuarios(@RequestHeader("Authorization") String token) {
+        try {
+            List<RolDTOUsuario> roles = authenticationService.getRolesFromToken(token);
+            boolean tieneRolAdmin = false;
+            for (RolDTOUsuario rol : roles) {
+                if (rol.getNombre().equals("Administrador")) {
+                    tieneRolAdmin = true;
+                    break;
+                }
+            }
+            if (tieneRolAdmin) {
+                List<UsuarioDTO> usuarios = usuarioService.getAllUsuarios();
+                if (usuarios.isEmpty()) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontraron usuarios.");
+                } else {
+                    return ResponseEntity.ok(usuarios);
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tiene permiso para ver este listado.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hubo un error al procesar la solicitud." + e.getMessage());
+        }
+    }
 }

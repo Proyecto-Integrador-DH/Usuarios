@@ -60,6 +60,15 @@ public class UsuarioService implements IUsuarioService {
         return usuarioDTO;
     }
 
+    @Override
+    public List<UsuarioDTO> getAllUsuarios() {
+        List<Usuario> usuarios = usuarioRepository.findAll();
+        List<UsuarioDTO> usuariosDto = usuarios.stream()
+                .map(usuario -> convertToDto(usuario))
+                .collect(Collectors.toList());
+        return usuariosDto;
+    }
+
     private UsuarioDTO convertToDto(Usuario usuario) {
         List<RolDTOUsuario> rolesDto = usuario.getRoles().stream()
                 .map(rol -> new RolDTOUsuario(rol.getId(), rol.getNombre()))
