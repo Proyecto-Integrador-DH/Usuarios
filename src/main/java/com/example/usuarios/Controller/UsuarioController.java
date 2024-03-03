@@ -1,10 +1,7 @@
 package com.example.usuarios.Controller;
 
-import com.example.usuarios.Model.DTOs.RolDTO;
 import com.example.usuarios.Model.DTOs.RolDTOUsuario;
 import com.example.usuarios.Model.DTOs.UsuarioDTO;
-import com.example.usuarios.Model.Rol;
-import com.example.usuarios.Model.Usuario;
 import com.example.usuarios.Service.IRolService;
 import com.example.usuarios.Service.IUsuarioService;
 import com.example.usuarios.Utils.Autenticacion.AuthenticationService;

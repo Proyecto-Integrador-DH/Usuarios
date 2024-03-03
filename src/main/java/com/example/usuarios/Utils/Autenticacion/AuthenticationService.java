@@ -23,7 +23,8 @@ public class AuthenticationService {
 
     @Autowired
     private IUsuarioService usuarioService;
-    private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    private static final Key publicKey = KeyGenerator.getPublicKey();
+    private static final Key privateKey = KeyGenerator.getPrivateKey();
 
     public String authenticate(String email, String pass) {
         UsuarioDTO usuarioDTO = usuarioService.getUsuario(email);
@@ -39,12 +40,12 @@ public class AuthenticationService {
                 .setSubject(email)
                 .claim("roles", roles)
                 .setExpiration(new Date(System.currentTimeMillis() + 864000000)) // 10 días de validez
-                .signWith(key) // Clave secreta para firmar el token
+                .signWith(privateKey) // Clave secreta para firmar el token
                 .compact();
     }
 
     public boolean getRolesFromToken(String token) {
-        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+        Claims claims = Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJws(token).getBody();
         List<Map<String, Object>> rolesMap = (List<Map<String, Object>>) claims.get("roles");
         List<RolDTOUsuario> roles = rolesMap.stream()
                 .map(map -> new RolDTOUsuario((Integer) map.get("id"), (String) map.get("nombre")))
