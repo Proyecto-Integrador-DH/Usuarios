@@ -29,6 +29,8 @@ public class UsuarioController {
     @Autowired
     private AuthenticationService authenticationService;
 
+    Boolean tieneRolAdmin = false;
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UsuarioDTO usuarioDTO) {
         try {
@@ -70,13 +72,18 @@ public class UsuarioController {
     }
 
     @GetMapping("email/{email}")
-    public ResponseEntity<?> getUsuario(@PathVariable String email){
+    public ResponseEntity<?> getUsuario(@RequestHeader("Authorization") String token,  @PathVariable String email){
         try {
-            UsuarioDTO usuarioDTO = usuarioService.getUsuario(email);
-            if (usuarioDTO != null) {
-                return ResponseEntity.ok(usuarioDTO);
+            tieneRolAdmin = authenticationService.getRolesFromToken(token);
+            if(tieneRolAdmin){
+                UsuarioDTO usuarioDTO = usuarioService.getUsuario(email);
+                if (usuarioDTO != null) {
+                    return ResponseEntity.ok(usuarioDTO);
+                } else {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró ningún usuario con el email especificado.");
+                }
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró ningún usuario con el email especificado.");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tiene permiso para ver este usuario.");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hubo un error al procesar la solicitud.");
@@ -84,13 +91,18 @@ public class UsuarioController {
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<?> getUsuario(@PathVariable Integer id){
+    public ResponseEntity<?> getUsuario(@RequestHeader("Authorization") String token, @PathVariable Integer id){
         try {
-            UsuarioDTO usuarioDTO = usuarioService.getUsuarioById(id);
-            if (usuarioDTO != null) {
-                return ResponseEntity.ok(usuarioDTO);
+            tieneRolAdmin = authenticationService.getRolesFromToken(token);
+            if (tieneRolAdmin) {
+                UsuarioDTO usuarioDTO = usuarioService.getUsuarioById(id);
+                if (usuarioDTO != null) {
+                    return ResponseEntity.ok(usuarioDTO);
+                } else {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró ningún usuario con el ID especificado.");
+                }
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró ningún usuario con el id especificado.");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tiene permiso para ver este usuario.");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hubo un error al procesar la solicitud." + e.getMessage());
@@ -100,7 +112,7 @@ public class UsuarioController {
     @GetMapping("/usuarios")
     public ResponseEntity<?> getTodosUsuarios(@RequestHeader("Authorization") String token) {
         try {
-            Boolean tieneRolAdmin = authenticationService.getRolesFromToken(token);
+            tieneRolAdmin = authenticationService.getRolesFromToken(token);
             if (tieneRolAdmin) {
                 List<UsuarioDTO> usuarios = usuarioService.getAllUsuarios();
                 if (usuarios.isEmpty()) {
