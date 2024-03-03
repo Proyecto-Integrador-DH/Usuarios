@@ -43,12 +43,19 @@ public class AuthenticationService {
                 .compact();
     }
 
-    public List<RolDTOUsuario> getRolesFromToken(String token) {
+    public boolean getRolesFromToken(String token) {
         Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
         List<Map<String, Object>> rolesMap = (List<Map<String, Object>>) claims.get("roles");
         List<RolDTOUsuario> roles = rolesMap.stream()
                 .map(map -> new RolDTOUsuario((Integer) map.get("id"), (String) map.get("nombre")))
                 .collect(Collectors.toList());
-        return roles;
+        boolean tieneRolAdmin = false;
+        for (RolDTOUsuario rol : roles) {
+            if (rol.getNombre().equals("Administrador")) {
+                tieneRolAdmin = true;
+                break;
+            }
+        }
+        return tieneRolAdmin;
     }
 }

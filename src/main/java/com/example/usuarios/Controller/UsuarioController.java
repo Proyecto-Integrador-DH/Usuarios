@@ -100,14 +100,7 @@ public class UsuarioController {
     @GetMapping("/usuarios")
     public ResponseEntity<?> getTodosUsuarios(@RequestHeader("Authorization") String token) {
         try {
-            List<RolDTOUsuario> roles = authenticationService.getRolesFromToken(token);
-            boolean tieneRolAdmin = false;
-            for (RolDTOUsuario rol : roles) {
-                if (rol.getNombre().equals("Administrador")) {
-                    tieneRolAdmin = true;
-                    break;
-                }
-            }
+            Boolean tieneRolAdmin = authenticationService.getRolesFromToken(token);
             if (tieneRolAdmin) {
                 List<UsuarioDTO> usuarios = usuarioService.getAllUsuarios();
                 if (usuarios.isEmpty()) {
