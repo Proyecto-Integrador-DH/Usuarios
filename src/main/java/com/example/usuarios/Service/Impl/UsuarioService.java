@@ -69,6 +69,14 @@ public class UsuarioService implements IUsuarioService {
         return usuariosDto;
     }
 
+    @Override
+    public void addRol(UsuarioDTO usuarioDTO) {
+        Usuario usuario = mapper.convertValue(usuarioDTO, Usuario.class);
+        Usuario usuarioRol = usuarioRepository.save(usuario);
+        usuarioRol = usuarioRepository.findById(usuarioRol.getId()).orElse(null);
+        usuarioRepository.save(usuarioRol);
+    }
+
     private UsuarioDTO convertToDto(Usuario usuario) {
         List<RolDTOUsuario> rolesDto = usuario.getRoles().stream()
                 .map(rol -> new RolDTOUsuario(rol.getId(), rol.getNombre()))

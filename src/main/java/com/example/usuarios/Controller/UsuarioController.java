@@ -119,4 +119,28 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hubo un error al procesar la solicitud." + e.getMessage());
         }
     }
+
+    @PostMapping("/asignarRol")
+    //public ResponseEntity<?> asignarRol(@RequestHeader("Authorization") String token, @RequestBody UsuarioDTO usuarioDTO){
+    public ResponseEntity<?> asignarRol(@RequestBody UsuarioDTO usuarioDTO){
+        List<RolDTOUsuario> roles = usuarioDTO.getRoles();
+        UsuarioDTO usuario = usuarioService.getUsuario(usuarioDTO.getEmail());
+        try {
+            //tieneRolAdmin = authenticationService.getRolesFromToken(token);
+            if(roles == null || roles.isEmpty() || roles.get(0).getId() == 2){
+                roles = new ArrayList<>();
+                roles.add(new RolDTOUsuario(2,"Usuario"));
+                roles.add(new RolDTOUsuario(1,"Administrador"));
+                usuarioDTO = new UsuarioDTO(usuario.id(), usuario.nombre(), usuario.apellido(), usuario.email(), usuario.pass(), roles);
+            }
+            tieneRolAdmin = true;
+            if (!tieneRolAdmin) {
+                return ResponseEntity.status(401).body("No tiene permisos para realizar esta acción.");
+            }
+            usuarioService.addRol(usuarioDTO);
+            return ResponseEntity.status(201).body("Rol asignado con éxito.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Hubo un error al procesar la solicitud.");
+        }
+    }
 }

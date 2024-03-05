@@ -49,4 +49,12 @@ public class Rol {
     public String getNombre() {
         return nombre;
     }
+
+    public void setId(int i) {
+        this.id = i;
+    }
+
+    public void setNombre(String administrador) {
+        this.nombre = administrador;
+    }
 }

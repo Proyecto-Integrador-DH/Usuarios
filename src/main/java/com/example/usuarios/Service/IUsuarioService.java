@@ -10,4 +10,6 @@ public interface IUsuarioService {
     UsuarioDTO getUsuario(String email);
     UsuarioDTO getUsuarioById(Integer id);
     List<UsuarioDTO> getAllUsuarios();
+
+    void addRol(UsuarioDTO usuarioDTO);
 }

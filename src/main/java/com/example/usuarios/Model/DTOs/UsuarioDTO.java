@@ -14,4 +14,8 @@ public record UsuarioDTO(Integer id, String nombre, String apellido, String emai
     public List<RolDTOUsuario> getRoles() {
         return roles;
     }
+
+    public Integer getId() {
+        return id;
+    }
 }
