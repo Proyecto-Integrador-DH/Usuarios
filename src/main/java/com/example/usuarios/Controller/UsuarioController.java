@@ -69,18 +69,13 @@ public class UsuarioController {
     }
 
     @GetMapping("email/{email}")
-    public ResponseEntity<?> getUsuario(@RequestHeader("Authorization") String token,  @PathVariable String email){
+    public ResponseEntity<?> getUsuario(@PathVariable String email){
         try {
-            tieneRolAdmin = authenticationService.getRolesFromToken(token);
-            if(tieneRolAdmin){
-                UsuarioDTO usuarioDTO = usuarioService.getUsuario(email);
-                if (usuarioDTO != null) {
-                    return ResponseEntity.ok(usuarioDTO);
-                } else {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró ningún usuario con el email especificado.");
-                }
+            UsuarioDTO usuarioDTO = usuarioService.getUsuario(email);
+            if (usuarioDTO != null) {
+                return ResponseEntity.ok(usuarioDTO);
             } else {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tiene permiso para ver este usuario.");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró ningún usuario con el email especificado.");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hubo un error al procesar la solicitud.");
