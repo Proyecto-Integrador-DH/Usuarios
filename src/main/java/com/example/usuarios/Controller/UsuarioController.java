@@ -62,10 +62,10 @@ public class UsuarioController {
                 usuarioDTO = new UsuarioDTO(usuarioDTO.id(), usuarioDTO.nombre(), usuarioDTO.apellido(), usuarioDTO.email(), usuarioDTO.pass(), roles);
             }
             usuarioService.postUsuario(usuarioDTO);
-            String destino = usuarioDTO.getEmail();
+            /*String destino = usuarioDTO.getEmail();
             String asunto = "Bienvenido a la plataforma";
             String cuerpo = "Bienvenido a la plataforma. Su usuario ha sido creado con éxito.";
-            emailService.enviarCorreo(destino, asunto, cuerpo);
+            emailService.enviarCorreo(destino, asunto, cuerpo);*/
             return ResponseEntity.status(HttpStatus.CREATED).body("Usuario creado con éxito.");
         } catch (DataIntegrityViolationException e) {
             return new ResponseEntity<>("Ya existe un usuario con ese email.", HttpStatus.BAD_REQUEST);
