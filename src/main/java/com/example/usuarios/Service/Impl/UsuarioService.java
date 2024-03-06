@@ -71,6 +71,15 @@ public class UsuarioService implements IUsuarioService {
 
     @Override
     public void addRol(UsuarioDTO usuarioDTO) {
+
+        Usuario usuario = mapper.convertValue(usuarioDTO, Usuario.class);
+        Usuario usuarioRol = usuarioRepository.save(usuario);
+        usuarioRol = usuarioRepository.findById(usuarioRol.getId()).orElse(null);
+        usuarioRepository.save(usuarioRol);
+    }
+
+    @Override
+    public void deleteRol(UsuarioDTO usuarioDTO) {
         Usuario usuario = mapper.convertValue(usuarioDTO, Usuario.class);
         Usuario usuarioRol = usuarioRepository.save(usuario);
         usuarioRol = usuarioRepository.findById(usuarioRol.getId()).orElse(null);

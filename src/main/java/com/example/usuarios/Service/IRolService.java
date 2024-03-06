@@ -8,4 +8,5 @@ public interface IRolService {
     Rol getRol(Integer id);
 
     void addPermiso(Integer rolId, Integer permisoId);
+    void removePermiso(Integer rolId, Integer permisoId);
 }

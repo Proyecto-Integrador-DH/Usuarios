@@ -12,4 +12,5 @@ public interface IUsuarioService {
     List<UsuarioDTO> getAllUsuarios();
 
     void addRol(UsuarioDTO usuarioDTO);
+    void deleteRol(UsuarioDTO usuarioDTO);
 }

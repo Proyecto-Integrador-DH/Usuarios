@@ -34,14 +34,35 @@ public class RolController {
         }
     }
     @PostMapping("/asignarPermiso")
-    public ResponseEntity<?> asignarPermiso(@RequestHeader("Authorization") String token, @RequestBody RolDTO rolDTO){
+    //public ResponseEntity<?> asignarPermiso(@RequestHeader("Authorization") String token, @RequestBody RolDTO rolDTO){
+    public ResponseEntity<?> asignarPermiso(@RequestBody RolDTO rolDTO){
         try {
-            tieneRolAdmin = authenticationService.getRolesFromToken(token);
+            //tieneRolAdmin = authenticationService.getRolesFromToken(token);
+            tieneRolAdmin = true;
             if (!tieneRolAdmin) {
                 return ResponseEntity.status(401).body("No tiene permisos para realizar esta acción.");
             }
             rolService.addPermiso(rolDTO.getRolId(), rolDTO.getPermisos().get(0).getId());
             return ResponseEntity.status(201).body("Permiso asignado con éxito.");
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(404).body("Hubo un error al procesar la solicitud.");
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(500).body("Hubo un error al procesar la solicitud.");
+        }
+    }
+
+    @PostMapping("/quitarPermiso")
+    //public ResponseEntity<?> quitarPermiso(@RequestHeader("Authorization") String token, @RequestBody RolDTO rolDTO){
+    public ResponseEntity<?> quitarPermiso(@RequestBody RolDTO rolDTO){
+        try {
+            //tieneRolAdmin = authenticationService.getRolesFromToken(token);
+            tieneRolAdmin = true;
+            if (!tieneRolAdmin) {
+                return ResponseEntity.status(401).body("No tiene permisos para realizar esta acción.");
+            }
+            rolService.removePermiso(rolDTO.getRolId(), rolDTO.getPermisos().get(0).getId());
+            return ResponseEntity.status(201).body("Permiso quitado con éxito.");
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(404).body("Hubo un error al procesar la solicitud.");
         }

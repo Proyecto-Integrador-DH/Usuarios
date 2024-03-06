@@ -43,4 +43,12 @@ public class RolService implements IRolService {
         rol.getPermisos().add(permiso);
         rolRepository.save(rol);
     }
+
+    @Override
+    public void removePermiso(Integer rolId, Integer permisoId) {
+        Rol rol = rolRepository.findById(rolId).orElseThrow(() -> new NoSuchElementException("Rol no encontrado"));
+        Permisos permiso = permisosRepository.findById(permisoId).orElseThrow(() -> new NoSuchElementException("Permiso no encontrado"));
+        rol.getPermisos().remove(permiso);
+        rolRepository.save(rol);
+    }
 }

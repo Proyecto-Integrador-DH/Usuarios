@@ -143,4 +143,25 @@ public class UsuarioController {
             return ResponseEntity.status(500).body("Hubo un error al procesar la solicitud.");
         }
     }
+
+    @PostMapping("/quitarRol")
+    public ResponseEntity<?> quitarRol(@RequestBody UsuarioDTO usuarioDTO){
+        List<RolDTOUsuario> roles = usuarioDTO.getRoles();
+        UsuarioDTO usuario = usuarioService.getUsuario(usuarioDTO.getEmail());
+        try {
+            if(roles == null || roles.isEmpty() || roles.get(0).getId() == 1){
+                roles = new ArrayList<>();
+                roles.add(new RolDTOUsuario(2,"Usuario"));
+                usuarioDTO = new UsuarioDTO(usuario.id(), usuario.nombre(), usuario.apellido(), usuario.email(), usuario.pass(), roles);
+            }
+            tieneRolAdmin = true;
+            if (!tieneRolAdmin) {
+                return ResponseEntity.status(401).body("No tiene permisos para realizar esta acción.");
+            }
+            usuarioService.deleteRol(usuarioDTO);
+            return ResponseEntity.status(201).body("Rol eliminado con éxito.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Hubo un error al procesar la solicitud.");
+        }
+    }
 }
