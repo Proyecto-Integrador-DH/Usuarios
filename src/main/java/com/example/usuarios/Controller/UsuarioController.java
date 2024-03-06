@@ -5,6 +5,7 @@ import com.example.usuarios.Model.DTOs.UsuarioDTO;
 import com.example.usuarios.Service.IRolService;
 import com.example.usuarios.Service.IUsuarioService;
 import com.example.usuarios.Utils.Autenticacion.AuthenticationService;
+import com.example.usuarios.Utils.Autenticacion.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,8 @@ public class UsuarioController {
 
     @Autowired
     private AuthenticationService authenticationService;
+    @Autowired
+    private EmailService emailService;
 
     Boolean tieneRolAdmin = false;
 
@@ -59,11 +62,16 @@ public class UsuarioController {
                 usuarioDTO = new UsuarioDTO(usuarioDTO.id(), usuarioDTO.nombre(), usuarioDTO.apellido(), usuarioDTO.email(), usuarioDTO.pass(), roles);
             }
             usuarioService.postUsuario(usuarioDTO);
+            String destino = usuarioDTO.getEmail();
+            String asunto = "Bienvenido a la plataforma";
+            String cuerpo = "Bienvenido a la plataforma. Su usuario ha sido creado con éxito.";
+            emailService.enviarCorreo(destino, asunto, cuerpo);
             return ResponseEntity.status(HttpStatus.CREATED).body("Usuario creado con éxito.");
         } catch (DataIntegrityViolationException e) {
             return new ResponseEntity<>("Ya existe un usuario con ese email.", HttpStatus.BAD_REQUEST);
         }
         catch (Exception e) {
+            System.out.println(e.getMessage());
             return ResponseEntity.status(500).body("Hubo un error al procesar la solicitud.");
         }
     }
@@ -121,19 +129,19 @@ public class UsuarioController {
     }
 
     @PostMapping("/asignarRol")
-    //public ResponseEntity<?> asignarRol(@RequestHeader("Authorization") String token, @RequestBody UsuarioDTO usuarioDTO){
-    public ResponseEntity<?> asignarRol(@RequestBody UsuarioDTO usuarioDTO){
+    public ResponseEntity<?> asignarRol(@RequestHeader("Authorization") String token, @RequestBody UsuarioDTO usuarioDTO){
+    //public ResponseEntity<?> asignarRol(@RequestBody UsuarioDTO usuarioDTO){
         List<RolDTOUsuario> roles = usuarioDTO.getRoles();
         UsuarioDTO usuario = usuarioService.getUsuario(usuarioDTO.getEmail());
         try {
-            //tieneRolAdmin = authenticationService.getRolesFromToken(token);
+            tieneRolAdmin = authenticationService.getRolesFromToken(token);
             if(roles == null || roles.isEmpty() || roles.get(0).getId() == 2){
                 roles = new ArrayList<>();
                 roles.add(new RolDTOUsuario(2,"Usuario"));
                 roles.add(new RolDTOUsuario(1,"Administrador"));
                 usuarioDTO = new UsuarioDTO(usuario.id(), usuario.nombre(), usuario.apellido(), usuario.email(), usuario.pass(), roles);
             }
-            tieneRolAdmin = true;
+            //tieneRolAdmin = true;
             if (!tieneRolAdmin) {
                 return ResponseEntity.status(401).body("No tiene permisos para realizar esta acción.");
             }
@@ -145,7 +153,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/quitarRol")
-    public ResponseEntity<?> quitarRol(@RequestBody UsuarioDTO usuarioDTO){
+    public ResponseEntity<?> quitarRol(@RequestHeader("Authorization") String token, @RequestBody UsuarioDTO usuarioDTO){
         List<RolDTOUsuario> roles = usuarioDTO.getRoles();
         UsuarioDTO usuario = usuarioService.getUsuario(usuarioDTO.getEmail());
         try {
@@ -154,7 +162,7 @@ public class UsuarioController {
                 roles.add(new RolDTOUsuario(2,"Usuario"));
                 usuarioDTO = new UsuarioDTO(usuario.id(), usuario.nombre(), usuario.apellido(), usuario.email(), usuario.pass(), roles);
             }
-            tieneRolAdmin = true;
+            tieneRolAdmin = authenticationService.getRolesFromToken(token);
             if (!tieneRolAdmin) {
                 return ResponseEntity.status(401).body("No tiene permisos para realizar esta acción.");
             }

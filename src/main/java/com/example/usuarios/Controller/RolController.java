@@ -34,11 +34,11 @@ public class RolController {
         }
     }
     @PostMapping("/asignarPermiso")
-    //public ResponseEntity<?> asignarPermiso(@RequestHeader("Authorization") String token, @RequestBody RolDTO rolDTO){
-    public ResponseEntity<?> asignarPermiso(@RequestBody RolDTO rolDTO){
+    public ResponseEntity<?> asignarPermiso(@RequestHeader("Authorization") String token, @RequestBody RolDTO rolDTO){
+    //public ResponseEntity<?> asignarPermiso(@RequestBody RolDTO rolDTO){
         try {
-            //tieneRolAdmin = authenticationService.getRolesFromToken(token);
-            tieneRolAdmin = true;
+            tieneRolAdmin = authenticationService.getRolesFromToken(token);
+            //tieneRolAdmin = true;
             if (!tieneRolAdmin) {
                 return ResponseEntity.status(401).body("No tiene permisos para realizar esta acción.");
             }
@@ -53,11 +53,11 @@ public class RolController {
     }
 
     @PostMapping("/quitarPermiso")
-    //public ResponseEntity<?> quitarPermiso(@RequestHeader("Authorization") String token, @RequestBody RolDTO rolDTO){
-    public ResponseEntity<?> quitarPermiso(@RequestBody RolDTO rolDTO){
+    public ResponseEntity<?> quitarPermiso(@RequestHeader("Authorization") String token, @RequestBody RolDTO rolDTO){
+    //public ResponseEntity<?> quitarPermiso(@RequestBody RolDTO rolDTO){
         try {
-            //tieneRolAdmin = authenticationService.getRolesFromToken(token);
-            tieneRolAdmin = true;
+            tieneRolAdmin = authenticationService.getRolesFromToken(token);
+            //tieneRolAdmin = true;
             if (!tieneRolAdmin) {
                 return ResponseEntity.status(401).body("No tiene permisos para realizar esta acción.");
             }
