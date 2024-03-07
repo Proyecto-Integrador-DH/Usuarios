@@ -130,43 +130,50 @@ public class UsuarioController {
 
     @PostMapping("/asignarRol")
     public ResponseEntity<?> asignarRol(@RequestHeader("Authorization") String token, @RequestBody UsuarioDTO usuarioDTO){
-    //public ResponseEntity<?> asignarRol(@RequestBody UsuarioDTO usuarioDTO){
-        List<RolDTOUsuario> roles = usuarioDTO.getRoles();
-        UsuarioDTO usuario = usuarioService.getUsuario(usuarioDTO.getEmail());
         try {
             tieneRolAdmin = authenticationService.getRolesFromToken(token);
-            if(roles == null || roles.isEmpty() || roles.get(0).getId() == 2){
-                roles = new ArrayList<>();
-                roles.add(new RolDTOUsuario(2,"Usuario"));
-                roles.add(new RolDTOUsuario(1,"Administrador"));
-                usuarioDTO = new UsuarioDTO(usuario.id(), usuario.nombre(), usuario.apellido(), usuario.email(), usuario.pass(), roles);
-            }
-            //tieneRolAdmin = true;
             if (!tieneRolAdmin) {
                 return ResponseEntity.status(401).body("No tiene permisos para realizar esta acción.");
             }
-            usuarioService.addRol(usuarioDTO);
+            UsuarioDTO usuario = usuarioService.getUsuarioById(usuarioDTO.id());
+            List<RolDTOUsuario> roles = usuario.getRoles();
+
+            // Verifica si el usuario ya tiene el rol asignado
+            if (roles.stream().anyMatch(rol -> rol.getId() == 1)) {
+                return ResponseEntity.status(400).body("El usuario ya tiene el rol de Administrador asignado.");
+            }
+
+            // Agrega el nuevo rol al usuario
+            roles.add(new RolDTOUsuario(1, "Administrador"));
+            usuarioService.addRol(usuario);
+
             return ResponseEntity.status(201).body("Rol asignado con éxito.");
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return ResponseEntity.status(500).body("Hubo un error al procesar la solicitud.");
         }
     }
 
     @PostMapping("/quitarRol")
     public ResponseEntity<?> quitarRol(@RequestHeader("Authorization") String token, @RequestBody UsuarioDTO usuarioDTO){
-        List<RolDTOUsuario> roles = usuarioDTO.getRoles();
-        UsuarioDTO usuario = usuarioService.getUsuario(usuarioDTO.getEmail());
         try {
-            if(roles == null || roles.isEmpty() || roles.get(0).getId() == 1){
-                roles = new ArrayList<>();
-                roles.add(new RolDTOUsuario(2,"Usuario"));
-                usuarioDTO = new UsuarioDTO(usuario.id(), usuario.nombre(), usuario.apellido(), usuario.email(), usuario.pass(), roles);
-            }
             tieneRolAdmin = authenticationService.getRolesFromToken(token);
             if (!tieneRolAdmin) {
                 return ResponseEntity.status(401).body("No tiene permisos para realizar esta acción.");
             }
-            usuarioService.deleteRol(usuarioDTO);
+
+            UsuarioDTO usuario = usuarioService.getUsuarioById(usuarioDTO.id());
+            List<RolDTOUsuario> roles = usuario.getRoles();
+
+            // Verifica si el usuario tiene el rol de Administrador
+            if (roles.stream().noneMatch(rol -> rol.getId() == 1)) {
+                return ResponseEntity.status(400).body("El usuario no tiene el rol de Administrador asignado.");
+            }
+
+            // Elimina el rol de Administrador del usuario
+            roles.removeIf(rol -> rol.getId() == 1);
+            usuarioService.deleteRol(usuario);
+
             return ResponseEntity.status(201).body("Rol eliminado con éxito.");
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Hubo un error al procesar la solicitud.");
