@@ -55,6 +55,7 @@ public class UsuarioController {
     @PostMapping("/nuevo")
     public ResponseEntity<?> nuevoUsuario(@RequestBody UsuarioDTO usuarioDTO){
         List<RolDTOUsuario> roles = usuarioDTO.getRoles();
+        System.out.println("usuario" + usuarioDTO);
         try {
             if(roles == null || roles.isEmpty()){
                 roles = new ArrayList<>();
