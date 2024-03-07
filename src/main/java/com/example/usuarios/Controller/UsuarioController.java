@@ -5,7 +5,7 @@ import com.example.usuarios.Model.DTOs.UsuarioDTO;
 import com.example.usuarios.Service.IRolService;
 import com.example.usuarios.Service.IUsuarioService;
 import com.example.usuarios.Utils.Autenticacion.AuthenticationService;
-import com.example.usuarios.Utils.Autenticacion.EmailService;
+//import com.example.usuarios.Utils.Autenticacion.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -26,8 +26,8 @@ public class UsuarioController {
 
     @Autowired
     private AuthenticationService authenticationService;
-    @Autowired
-    private EmailService emailService;
+    /*@Autowired
+    private EmailService emailService;*/
 
     Boolean tieneRolAdmin = false;
 
