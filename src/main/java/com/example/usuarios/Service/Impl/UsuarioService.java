@@ -7,6 +7,7 @@ import com.example.usuarios.Model.Rol;
 import com.example.usuarios.Model.Usuario;
 import com.example.usuarios.Repository.IUsuarioRepository;
 import com.example.usuarios.Service.IUsuarioService;
+import com.example.usuarios.Utils.Autenticacion.EmailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -26,15 +28,21 @@ public class UsuarioService implements IUsuarioService {
     @Autowired
     private IUsuarioRepository usuarioRepository;
     @Autowired
+    private EmailService emailService;
+    @Autowired
     ObjectMapper mapper;
 
     @PersistenceContext
     private EntityManager entityManager;
     @Override
-    public Usuario postUsuario(UsuarioDTO usuarioDTO) {
+    public Usuario postUsuario(UsuarioDTO usuarioDTO) throws MessagingException, jakarta.mail.MessagingException {
         Usuario usuario = mapper.convertValue(usuarioDTO, Usuario.class);
         Usuario usuarioNuevo = usuarioRepository.save(usuario);
         usuarioNuevo = usuarioRepository.findById(usuarioNuevo.getId()).orElse(null);
+        String destino = usuarioDTO.getEmail();
+        String asunto = "Bienvenido a la plataforma";
+        String cuerpo = "Bienvenido a la plataforma. Su usuario ha sido creado con éxito.";
+        emailService.sendEmail(destino, asunto, cuerpo);
         return usuarioNuevo;
     }
 

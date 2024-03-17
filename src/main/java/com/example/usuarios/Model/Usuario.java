@@ -45,6 +45,9 @@ public class Usuario {
     )
     private Set<Rol> roles = new HashSet<>();
 
+    @Column(name = "cliente_id")
+    private Integer clienteId;
+
     public String getEmail() {
         return email;
     }
